@@ -389,7 +389,7 @@ export function uiCombobox(context, klass) {
                 .on('mouseleave', _mouseLeaveHandler)
                 .merge(options)
                 .classed('selected', function(d) { return d.value === _selected; })
-                .on('click.combo-option', accept)
+                .on('click.combo-option', click)
                 .order();
 
             var node = attachTo ? attachTo.node() : input.node();
@@ -402,20 +402,20 @@ export function uiCombobox(context, klass) {
                 .style('top', (rect.height + rect.top - containerRect.top) + 'px');
         }
 
+        function click(d3_event, d) {
+            utilGetSetValue(input, d.value);
+            accept();
+        }
 
         // Dispatches an 'accept' event
         // Then hides the combobox.
-        function accept(d3_event, d) {
+        function accept() {
             _cancelFetch = true;
             var thiz = input.node();
 
-            if (d) {   // user clicked on a suggestion
-                utilGetSetValue(input, d.value);    // replace field contents
-                utilTriggerEvent(input, 'change');
-            }
-
             // clear (and keep) selection
             var val = utilGetSetValue(input);
+            utilTriggerEvent(input, 'change', val);
             thiz.setSelectionRange(val.length, val.length);
 
             d = _fetched[val];
